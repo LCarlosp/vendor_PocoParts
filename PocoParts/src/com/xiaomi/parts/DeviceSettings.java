@@ -32,6 +32,7 @@ import androidx.preference.TwoStatePreference;
 import android.util.Log;
 
 import com.xiaomi.parts.speaker.ClearSpeakerActivity;
+import com.xiaomi.parts.preferences.VibratorStrengthPreference;
 import com.xiaomi.parts.preferences.CustomSeekBarPreference;
 import com.xiaomi.parts.preferences.SecureSettingListPreference;
 import com.xiaomi.parts.preferences.SecureSettingSwitchPreference;
@@ -47,12 +48,15 @@ public class DeviceSettings extends PreferenceFragment implements
 
     public static final String KEY_USB2_SWITCH = "usb2_fast_charge";
 
+    public static final String KEY_VIBSTRENGTH = "vib_strength";
+
     private SecureSettingSwitchPreference mFastcharge;
     private Preference mClearSpeakerPref;
     private Preference mAmbientPref;
 
     private static Context mContext;
     private static TwoStatePreference mUSB2FastChargeModeSwitch;
+    private VibratorStrengthPreference mVibratorStrength;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -61,6 +65,11 @@ public class DeviceSettings extends PreferenceFragment implements
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 
         String device = FileUtils.getStringProp("ro.build.product", "unknown");
+
+        mVibratorStrength = (VibratorStrengthPreference) findPreference(KEY_VIBSTRENGTH);
+        if (mVibratorStrength != null) {
+            mVibratorStrength.setEnabled(VibratorStrengthPreference.isSupported());
+        }
 
         mClearSpeakerPref = (Preference) findPreference(PREF_CLEAR_SPEAKER);
         mClearSpeakerPref.setOnPreferenceClickListener(preference -> {

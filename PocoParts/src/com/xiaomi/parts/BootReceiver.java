@@ -30,6 +30,7 @@ import android.widget.Toast;
 import android.text.TextUtils;
 
 import com.xiaomi.parts.R;
+import com.xiaomi.parts.preferences.VibratorStrengthPreference;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,6 +40,8 @@ public class BootReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         boolean enabled = false;
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        VibratorStrengthPreference.restore(context);
+
         enabled = sharedPrefs.getBoolean(DeviceSettings.KEY_USB2_SWITCH, false);
         if (enabled) {
         restore(USB2FastChargeModeSwitch.getFile(), enabled);

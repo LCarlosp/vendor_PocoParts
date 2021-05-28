@@ -6,3 +6,6 @@ type kcal_dev, sysfs_type, fs_type;
 
 # Touch Sampling
 type sysfs_htsr, sysfs_type, fs_type;
+
+# Vibrator
+type vibrator_dev, sysfs_type, fs_type;
