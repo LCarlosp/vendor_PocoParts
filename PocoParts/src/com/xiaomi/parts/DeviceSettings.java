@@ -42,6 +42,9 @@ public class DeviceSettings extends PreferenceFragment implements
     private static final String TAG = "PocoParts";
 
     public static final String PREF_KEY_FPS_INFO = "fps_info";
+    public static final String KEY_FPS_INFO_POSITION = "fps_info_position";
+    public static final String KEY_FPS_INFO_COLOR = "fps_info_color";
+    public static final String KEY_FPS_INFO_TEXT_SIZE = "fps_info_text_size";
 
     private static final String PREF_CLEAR_SPEAKER = "clear_speaker_settings";
 
@@ -50,7 +53,10 @@ public class DeviceSettings extends PreferenceFragment implements
     private SecureSettingSwitchPreference mFastcharge;
     private Preference mClearSpeakerPref;
     private Preference mAmbientPref;
+    private ProperSeekBarPreference mFpsInfoTextSizePreference;
 
+    private static ListPreference mFpsInfoPosition;
+    private static ListPreference mFpsInfoColor;
     private static Context mContext;
     private static TwoStatePreference mUSB2FastChargeModeSwitch;
 
@@ -79,6 +85,15 @@ public class DeviceSettings extends PreferenceFragment implements
         fpsInfo.setChecked(prefs.getBoolean(PREF_KEY_FPS_INFO, false));
         fpsInfo.setOnPreferenceChangeListener(this);
 
+        mFpsInfoPosition = (ListPreference) findPreference(KEY_FPS_INFO_POSITION);
+        mFpsInfoPosition.setOnPreferenceChangeListener(this);
+
+        mFpsInfoColor = (ListPreference) findPreference(KEY_FPS_INFO_COLOR);
+        mFpsInfoColor.setOnPreferenceChangeListener(this);
+
+        mFpsInfoTextSizePreference = (ProperSeekBarPreference) findPreference(KEY_FPS_INFO_TEXT_SIZE);
+        mFpsInfoTextSizePreference.setOnPreferenceChangeListener(this);
+
     }
 
     @Override
@@ -93,7 +108,34 @@ public class DeviceSettings extends PreferenceFragment implements
                 } else {
                     this.getContext().stopService(fpsinfo);
                 }
-                break;
+            } else if (preference == mFpsInfoPosition) {
+            int position = Integer.parseInt(newValue.toString());
+            Context mContext = getContext();
+            if (FPSInfoService.isPositionChanged(mContext, position)) {
+                FPSInfoService.setPosition(mContext, position);
+                if (isFPSOverlayRunning()) {
+                    restartFpsInfo(mContext);
+                }
+            }
+        } else if (preference == mFpsInfoColor) {
+            int color = Integer.parseInt(newValue.toString());
+            Context mContext = getContext();
+            if (FPSInfoService.isColorChanged(mContext, color)) {
+                FPSInfoService.setColorIndex(mContext, color);
+                if (isFPSOverlayRunning()) {
+                    restartFpsInfo(mContext);
+                }
+            }
+        } else if (preference == mFpsInfoTextSizePreference) {
+            int size = Integer.parseInt(newValue.toString());
+            Context mContext = getContext();
+            if (FPSInfoService.isSizeChanged(mContext, size - 1)) {
+                FPSInfoService.setSizeIndex(mContext, size - 1);
+                if (isFPSOverlayRunning()) {
+                    restartFpsInfo(mContext);
+                }
+            } 
+               break;
 
             default:
                 break;
@@ -109,5 +151,10 @@ public class DeviceSettings extends PreferenceFragment implements
         } catch (PackageManager.NameNotFoundException e) {
             return true;
         }
+
+     private void restartFpsInfo(Context context) {
+        Intent fpsinfo = new Intent(context, FPSInfoService.class);
+        context.stopService(fpsinfo);
+        context.startService(fpsinfo);
     }
 }
